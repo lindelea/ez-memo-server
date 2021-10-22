@@ -26,7 +26,7 @@ class UserController extends Controller
         return response()->json([
             'status' => 'OK',
             'user_id' => $user->id,
-            'token' => 'test',
+            'accessToken' => $user->createToken('Token')->accessToken,
         ]);
     }
 }
