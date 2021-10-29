@@ -2,14 +2,39 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Exceptions\ApiAuthException;
 use App\Http\Controllers\Controller;
 use App\Models\Memo;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 
 class MemoController extends Controller
 {
+    /**
+     * メモ参照API
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws ApiAuthException
+     */
+    public function view(Request $request)
+    {
+        $key = $request->get('key', null);
+
+        if (!$key) {
+            throw new ApiAuthException('no auth');
+        }
+
+        try {
+            $uuid = Crypt::decryptString($key);
+            $memo = Memo::findOrFail($uuid);
+            return response()->json($memo);
+        } catch (DecryptException $e) {
+            throw new ApiAuthException('no auth');
+        }
+    }
+
     /**
      * メモ作成API
      * @param Request $request
@@ -25,8 +50,10 @@ class MemoController extends Controller
             'is_public' => 'nullable|boolean',
         ]);
 
+        $uuid = Str::uuid()->toString();
+
         $memo = new Memo();
-        $memo->id = Str::uuid();
+        $memo->id = $uuid;
         $memo->user_id = $request->user() ? $request->user()->id : null;
         $memo->folder_id = $request->get('folder_id', null);
         $memo->title = $request->get('title');
@@ -36,7 +63,7 @@ class MemoController extends Controller
         $memo->save();
 
         return response()->json([
-            'key' => Crypt::encryptString($memo->id),
+            'key' => Crypt::encryptString($uuid),
         ]);
     }
 }
