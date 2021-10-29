@@ -62,8 +62,11 @@ class MemoController extends Controller
 
         $memo->save();
 
+        $encryptUUID = Crypt::encryptString($uuid);
+
         return response()->json([
-            'key' => Crypt::encryptString($uuid),
+            'key' => $encryptUUID,
+            'url' => 'http://ez-memo.test/api/v1/memos?key='.$encryptUUID,
         ]);
     }
 }
