@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\V1;
 
 use App\Exceptions\ApiAuthException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\MemoRequest;
 use App\Models\Memo;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
@@ -42,15 +43,8 @@ class MemoController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
+    public function store(MemoRequest $request)
     {
-        $this->validate($request, [
-            'folder_id' => 'nullable|integer',
-            'title' => 'required|string',
-            'contents' => 'required',
-            'is_public' => 'nullable|boolean',
-        ]);
-
         $uuid = Str::uuid()->toString();
 
         $memo = new Memo();
