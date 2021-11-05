@@ -20,6 +20,7 @@ class MemoController extends Controller
      */
     public function view(Request $request)
     {
+        // TODO: ログインユーザはIDで参照するかどうか別途で検討　2021/11/05 KGO
         $key = $request->get('key', null);
 
         if (!$key) {
