@@ -69,4 +69,49 @@ class MemoController extends Controller
             'url' => 'http://ez-memo.test/api/v1/memos?key='.$encryptUUID,
         ]);
     }
+
+    /**
+     * メモ更新API
+     * @param Request $request
+     * @param string $id
+     * @return \Illuminate\Http\JsonResponse
+     * @throws ApiAuthException
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function update(Request $request, string $id)
+    {
+        $key = $request->get('key', null);
+
+        if (!$key) {
+            throw new ApiAuthException('no auth');
+        }
+
+        try {
+            $uuid = Crypt::decryptString($key);
+
+            if ($uuid !== $id) {
+                throw new ApiAuthException('no auth');
+            }
+
+            $memo = Memo::findOrFail($id);
+
+            $this->validate($request, [
+                'folder_id' => 'nullable|integer',
+                'title' => 'required|string',
+                'contents' => 'required',
+                'is_public' => 'nullable|boolean',
+            ]);
+
+            $memo->folder_id = $request->get('folder_id', null);
+            $memo->title = $request->get('title');
+            $memo->contents = $request->get('contents');
+            $memo->is_public = $request->get('is_public', false);
+
+            $memo->update();
+
+            return response()->json($memo);
+        } catch (DecryptException $e) {
+            throw new ApiAuthException('no auth');
+        }
+    }
 }
