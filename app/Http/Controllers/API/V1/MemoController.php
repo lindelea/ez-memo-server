@@ -65,6 +65,7 @@ class MemoController extends Controller
         $encryptUUID = Crypt::encryptString($uuid);
 
         return response()->json([
+            'id' => $uuid,
             'key' => $encryptUUID,
             'url' => 'http://ez-memo.test/api/v1/memos?key='.$encryptUUID,
         ], 201);
@@ -82,18 +83,23 @@ class MemoController extends Controller
     {
         $key = $request->get('key', null);
 
-        if (!$key) {
+        if (!$key and !$request->user()) {
             throw new ApiAuthException('no auth');
         }
 
         try {
-            $uuid = Crypt::decryptString($key);
-
-            if ($uuid !== $id) {
-                throw new ApiAuthException('no auth');
+            if (!$request->user()) {
+                $uuid = Crypt::decryptString($key);
+                if ($uuid !== $id) {
+                    throw new ApiAuthException('no auth');
+                }
             }
 
             $memo = Memo::findOrFail($id);
+
+            if ($memo->user_id !== $request->user()->id) {
+                throw new ApiAuthException('no auth', 403);
+            }
 
             $this->validate($request, [
                 'folder_id' => 'nullable|integer',
@@ -126,18 +132,24 @@ class MemoController extends Controller
     {
         $key = $request->get('key', null);
 
-        if (!$key) {
+        if (!$key and !$request->user()) {
             throw new ApiAuthException('no auth');
         }
 
         try {
-            $uuid = Crypt::decryptString($key);
-
-            if ($uuid !== $id) {
-                throw new ApiAuthException('no auth');
+            if (!$request->user()) {
+                $uuid = Crypt::decryptString($key);
+                if ($uuid !== $id) {
+                    throw new ApiAuthException('no auth');
+                }
             }
 
             $memo = Memo::findOrFail($id);
+
+            if ($memo->user_id !== $request->user()->id) {
+                throw new ApiAuthException('no auth', 403);
+            }
+
             $memo->delete();
 
             return response()->json(['status' => 'OK'], 204);

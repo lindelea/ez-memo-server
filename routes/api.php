@@ -30,7 +30,12 @@ Route::prefix('v1')->namespace('App\Http\Controllers\API\V1')->group(function ()
         Route::delete('/{id}', 'MemoController@delete');
     });
 
-    Route::middleware('auth:api')->get('test', function () {
-        dd('認証済み');
+    Route::prefix('user')->middleware('auth:api')->group(function () {
+        Route::prefix('memos')->group(function () {
+            Route::get('/', 'MemoController@view');
+            Route::post('/', 'MemoController@store');
+            Route::patch('/{id}', 'MemoController@update');
+            Route::delete('/{id}', 'MemoController@delete');
+        });
     });
 });
