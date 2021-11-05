@@ -27,6 +27,7 @@ Route::prefix('v1')->namespace('App\Http\Controllers\API\V1')->group(function ()
         Route::get('/', 'MemoController@view');
         Route::post('/', 'MemoController@store');
         Route::patch('/{id}', 'MemoController@update');
+        Route::delete('/{id}', 'MemoController@delete');
     });
 
     Route::middleware('auth:api')->get('test', function () {

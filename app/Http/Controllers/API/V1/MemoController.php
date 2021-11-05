@@ -67,7 +67,7 @@ class MemoController extends Controller
         return response()->json([
             'key' => $encryptUUID,
             'url' => 'http://ez-memo.test/api/v1/memos?key='.$encryptUUID,
-        ]);
+        ], 201);
     }
 
     /**
@@ -109,7 +109,38 @@ class MemoController extends Controller
 
             $memo->update();
 
-            return response()->json($memo);
+            return response()->json($memo, 202);
+        } catch (DecryptException $e) {
+            throw new ApiAuthException('no auth');
+        }
+    }
+
+    /**
+     * メモ削除API
+     * @param Request $request
+     * @param string $id
+     * @return \Illuminate\Http\JsonResponse
+     * @throws ApiAuthException
+     */
+    public function delete(Request $request, string $id)
+    {
+        $key = $request->get('key', null);
+
+        if (!$key) {
+            throw new ApiAuthException('no auth');
+        }
+
+        try {
+            $uuid = Crypt::decryptString($key);
+
+            if ($uuid !== $id) {
+                throw new ApiAuthException('no auth');
+            }
+
+            $memo = Memo::findOrFail($id);
+            $memo->delete();
+
+            return response()->json(['status' => 'OK'], 204);
         } catch (DecryptException $e) {
             throw new ApiAuthException('no auth');
         }
