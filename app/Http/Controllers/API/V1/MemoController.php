@@ -64,11 +64,11 @@ class MemoController extends Controller
 
         dd($memo);
 
-//        return response()->json([
-//            'id' => $uuid,
-//            'key' => $encryptUUID,
-//            'url' => 'http://ez-memo.test/api/v1/memos?key='.$encryptUUID,
-//        ], 201);
+        return response()->json([
+            'id' => $uuid,
+            'key' => $encryptUUID,
+            'url' => 'http://ez-memo.test/api/v1/memos?key='.$encryptUUID,
+        ], 201);
     }
 
     /**
