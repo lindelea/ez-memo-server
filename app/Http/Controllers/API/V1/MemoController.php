@@ -6,6 +6,7 @@ use App\Exceptions\ApiAuthException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MemoRequest;
 use App\Models\Memo;
+use App\Protocols\MemoRepositoryProtocol;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -13,6 +14,20 @@ use Illuminate\Support\Str;
 
 class MemoController extends Controller
 {
+    /**
+     * @var MemoRepositoryProtocol
+     */
+    protected $memoRepository;
+
+    /**
+     * MemoController constructor.
+     * @param MemoRepositoryProtocol $memoRepository
+     */
+    public function __construct(MemoRepositoryProtocol $memoRepository)
+    {
+        $this->memoRepository = $memoRepository;
+    }
+
     /**
      * メモ参照API
      * @param Request $request
@@ -45,25 +60,15 @@ class MemoController extends Controller
      */
     public function store(MemoRequest $request)
     {
-        $uuid = Str::uuid()->toString();
+        $memo = $this->memoRepository->create($request);
 
-        $memo = new Memo();
-        $memo->id = $uuid;
-        $memo->user_id = $request->user() ? $request->user()->id : null;
-        $memo->folder_id = $request->get('folder_id', null);
-        $memo->title = $request->get('title');
-        $memo->contents = $request->get('contents');
-        $memo->is_public = $request->get('is_public', false);
+        dd($memo);
 
-        $memo->save();
-
-        $encryptUUID = Crypt::encryptString($uuid);
-
-        return response()->json([
-            'id' => $uuid,
-            'key' => $encryptUUID,
-            'url' => 'http://ez-memo.test/api/v1/memos?key='.$encryptUUID,
-        ], 201);
+//        return response()->json([
+//            'id' => $uuid,
+//            'key' => $encryptUUID,
+//            'url' => 'http://ez-memo.test/api/v1/memos?key='.$encryptUUID,
+//        ], 201);
     }
 
     /**
