@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\V1;
 use App\Exceptions\ApiAuthException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MemoRequest;
+use App\Http\Resources\V1\MemoResource;
 use App\Models\Memo;
 use App\Protocols\MemoRepositoryProtocol;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -54,21 +55,12 @@ class MemoController extends Controller
 
     /**
      * メモ作成API
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
+     * @param MemoRequest $request
+     * @return \Illuminate\Http\JsonResponse|object
      */
     public function store(MemoRequest $request)
     {
-        $memo = $this->memoRepository->create($request);
-
-        dd($memo);
-
-        return response()->json([
-            'id' => $uuid,
-            'key' => $encryptUUID,
-            'url' => 'http://ez-memo.test/api/v1/memos?key='.$encryptUUID,
-        ], 201);
+        return (new MemoResource($this->memoRepository->create($request)))->response()->setStatusCode(201);
     }
 
     /**
