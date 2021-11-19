@@ -29,11 +29,31 @@ class MemoRepository implements MemoRepositoryProtocol
             $memo->is_public = $request->get('is_public', false);
             $memo->save();
 
-            $memo = Memo::find($uuid);
-
-            return $memo;
+            return Memo::find($uuid);
         } catch (\Exception $exception) {
             //TODO: 例外処理　KGO　2021112
+            dd($exception->getMessage());
+        }
+    }
+
+    /**
+     * Memoモデル更新
+     * @param MemoRequest $request
+     * @param Memo $memo
+     * @return Memo
+     */
+    public function update(MemoRequest $request, Memo $memo): Memo
+    {
+        try {
+            $memo->folder_id = $request->get('folder_id', null);
+            $memo->title = $request->get('title');
+            $memo->contents = $request->get('contents');
+            $memo->is_public = $request->get('is_public', false);
+            $memo->update();
+
+            return Memo::find($memo->id);
+        } catch (\Exception $exception) {
+            //TODO: 例外処理　KGO　20211119
             dd($exception->getMessage());
         }
     }
