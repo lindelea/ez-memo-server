@@ -25,6 +25,7 @@ Route::prefix('v1')->namespace('App\Http\Controllers\API\V1')->group(function ()
 
     Route::prefix('memos')->group(function () {
         Route::get('/', 'MemoController@view');
+        Route::get('/list', 'MemoController@memos');
         Route::post('/', 'MemoController@store');
         Route::patch('/{id}', 'MemoController@update');
         Route::delete('/{id}', 'MemoController@delete');
@@ -33,6 +34,7 @@ Route::prefix('v1')->namespace('App\Http\Controllers\API\V1')->group(function ()
     Route::prefix('user')->middleware('auth:api')->group(function () {
         Route::prefix('memos')->group(function () {
             Route::get('/', 'MemoController@view');
+            Route::get('/list', 'MemoController@memos');
             Route::post('/', 'MemoController@store');
             Route::patch('/{id}', 'MemoController@update');
             Route::delete('/{id}', 'MemoController@delete');
