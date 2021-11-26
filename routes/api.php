@@ -39,5 +39,11 @@ Route::prefix('v1')->namespace('App\Http\Controllers\API\V1')->group(function ()
             Route::patch('/{id}', 'MemoController@update');
             Route::delete('/{id}', 'MemoController@delete');
         });
+        Route::prefix('folders')->group(function () {
+            Route::get('/', 'FolderController@folders');
+            Route::post('/', 'FolderController@store');
+            Route::patch('/{folder}', 'FolderController@update');
+            Route::delete('/{folder}', 'FolderController@delete');
+        });
     });
 });
